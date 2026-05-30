@@ -16,7 +16,7 @@
   
   /* Luxury Dark Mode Gradients - Deep Royal Blue Theater & Golden spotlight */
   --bg-dark-deep: #00071A; /* Deep Venezuela Blue */
-  --bg-dark-theater: radial-gradient(circle at 50% 25%, #0B1C3F 0%, #000514 75%);
+  --bg-dark-theater: radial-gradient(circle at 50% 120vh, #0B1C3F 0%, #000514 75%);
   --bg-spotlight: radial-gradient(circle at 50% 10%, rgba(252, 209, 22, 0.15) 0%, transparent 60%);
   
   /* Glassmorphism settings - Deep blue overlay with gold borders */
@@ -63,7 +63,7 @@
 
   /* Luxury Light Mode Gradients - Celestial Sky Blue to clean white and sun gold */
   --bg-dark-deep: #F4F9FF; /* Softest celestial sky blue background */
-  --bg-dark-theater: radial-gradient(circle at 50% 25%, #EBF4FC 0%, #E2EDF8 75%);
+  --bg-dark-theater: radial-gradient(circle at 50% 120vh, #EBF4FC 0%, #E2EDF8 75%);
   --bg-spotlight: radial-gradient(circle at 50% 10%, rgba(252, 191, 73, 0.25) 0%, transparent 60%);
 
   /* Glassmorphism settings - Light celestial glass */
@@ -114,24 +114,14 @@ body, header, section, footer, .glass-panel, .show-card, p, h1, h2, h3, h4, span
               box-shadow 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Custom Scrollbar - Elegant Gold & Amaranth */
+/* Hide scrollbar completely for a seamless cinematic experience */
+html, body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-dark-deep);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--dark-amaranth);
-  border-radius: 4px;
-  border: 2px solid var(--bg-dark-deep);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--camel);
+  display: none; /* Chrome, Safari and Opera */
 }
 
 /* Standard typographic styles */
@@ -463,8 +453,8 @@ button {
   position: relative;
   transform: scale(1.05);
   transition: transform 10s ease-out;
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0) 100%);
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 93%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 93%, rgba(0, 0, 0, 0) 100%);
 }
 
 .billboard-slide.active .billboard-image {
@@ -1263,12 +1253,15 @@ button {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 100px;
+  height: 60px; /* Safe distance below buttons */
+  background: linear-gradient(to bottom, transparent 0%, var(--bg-dark-deep) 100%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   pointer-events: none;
   z-index: 5;
 }
+
+
 
 /* Floating premium Home / Back to Top Button */
 .back-to-top-btn {
