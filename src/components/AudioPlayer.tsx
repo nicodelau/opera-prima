@@ -139,12 +139,12 @@ export default function AudioPlayer() {
 
       {isExpanded ? (
         // Expanded Luxury Player
-        <div className="glass-panel p-5 relative overflow-hidden flex flex-col gap-4 border border-[rgba(186,154,99,0.25)] bg-[rgba(15,3,5,0.9)] shadow-2xl rounded-2xl">
+        <div className="glass-panel p-5 relative overflow-hidden flex flex-col gap-4 border border-[rgba(var(--camel-rgb),0.25)] bg-[var(--modal-bg)] shadow-2xl rounded-2xl">
           {/* Spotlight aura */}
-          <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full bg-[rgba(186,154,99,0.1)] blur-2xl pointer-events-none" />
+          <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full bg-[rgba(var(--camel-rgb),0.1)] blur-2xl pointer-events-none" />
 
           {/* Header Controls */}
-          <div className="flex items-center justify-between border-b border-[rgba(186,154,99,0.1)] pb-3">
+          <div className="flex items-center justify-between border-b border-[rgba(var(--camel-rgb),0.1)] pb-3">
             <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--camel)] font-semibold">
               OPERA PRIMA PLAY
             </span>
@@ -160,7 +160,7 @@ export default function AudioPlayer() {
           {/* Track details & Visualizer */}
           <div className="flex items-center gap-4">
             {/* Visualizer animation */}
-            <div className="w-12 h-12 rounded-lg bg-[rgba(115,28,43,0.2)] border border-[rgba(186,154,99,0.15)] flex items-center justify-center relative overflow-hidden shrink-0">
+            <div className="w-12 h-12 rounded-lg bg-[rgba(var(--dark-amaranth-rgb),0.2)] border border-[rgba(var(--camel-rgb),0.15)] flex items-center justify-center relative overflow-hidden shrink-0">
               <div className="flex items-end gap-[3px] h-6 w-8 justify-center">
                 <span
                   className={`w-[3px] bg-[var(--camel)] rounded-full transition-all ${
@@ -201,7 +201,7 @@ export default function AudioPlayer() {
             <div
               ref={progressRef}
               onClick={handleProgressBarClick}
-              className="h-1.5 w-full bg-[rgba(241,233,218,0.1)] rounded-full overflow-hidden cursor-pointer relative group"
+              className="h-1.5 w-full bg-[rgba(var(--eggshell-rgb),0.15)] rounded-full overflow-hidden cursor-pointer relative group"
             >
               <div
                 className="h-full bg-gradient-to-r from-[var(--burnt-rose)] to-[var(--camel)] rounded-full relative"
@@ -243,7 +243,7 @@ export default function AudioPlayer() {
                   setVolume(parseFloat(e.target.value));
                   setIsMuted(false);
                 }}
-                className="w-full accent-[var(--camel)] h-1 bg-[rgba(241,233,218,0.1)] rounded-full appearance-none outline-none cursor-pointer"
+                className="w-full accent-[var(--camel)] h-1 bg-[rgba(var(--eggshell-rgb),0.15)] rounded-full appearance-none outline-none cursor-pointer"
               />
             </div>
 
@@ -261,7 +261,7 @@ export default function AudioPlayer() {
 
               <button
                 onClick={togglePlay}
-                className="w-10 h-10 rounded-full bg-[var(--burnt-rose)] hover:bg-[var(--camel)] text-[var(--eggshell)] hover:text-[#0c0204] flex items-center justify-center border border-[rgba(186,154,99,0.3)] shadow-[0_0_10px_rgba(135,75,82,0.3)] transition-all transform hover:scale-105"
+                className="w-10 h-10 rounded-full bg-[var(--burnt-rose)] hover:bg-[var(--camel)] text-[var(--eggshell)] hover:text-[#0c0204] flex items-center justify-center border border-[rgba(var(--camel-rgb),0.3)] shadow-[0_0_10px_rgba(var(--burnt-rose-rgb),0.3)] transition-all transform hover:scale-105"
                 aria-label={isPlaying ? "Pausar" : "Reproducir"}
               >
                 {isPlaying ? (

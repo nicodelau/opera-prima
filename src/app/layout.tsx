@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   keywords: "opera, musica clasica, teatro colon, la scala de milan, opera prima, teatro, lirica, ballet, orquesta filarmonica, carmen, la traviata",
   authors: [{ name: "Ópera Prima Compañía" }],
   icons: {
-    icon: "/images/isotype_bottom.png",
+    icon: "/images/silencio_isotipo.svg",
   }
 };
 

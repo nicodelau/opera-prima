@@ -120,6 +120,9 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeTab, setActiveTab] = useState<"todos" | "opera" | "ballet" | "concierto" | "infantil">("todos");
 
+  // Theme State ("dark" | "light")
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
   // Booking Modal State
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingShow, setBookingShow] = useState("Carmen");
@@ -127,6 +130,33 @@ export default function Home() {
   // Newsletter State
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSuccess, setNewsletterSuccess] = useState(false);
+
+  // Initialize theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") as "dark" | "light" | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      if (savedTheme === "light") {
+        document.documentElement.classList.add("light-theme");
+      } else {
+        document.documentElement.classList.remove("light-theme");
+      }
+    } else {
+      setTheme("dark");
+      document.documentElement.classList.remove("light-theme");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    if (newTheme === "light") {
+      document.documentElement.classList.add("light-theme");
+    } else {
+      document.documentElement.classList.remove("light-theme");
+    }
+  };
 
   // Scroll Event Listener
   useEffect(() => {
@@ -180,11 +210,11 @@ export default function Home() {
       <header className={`navbar ${scrolled ? "scrolled" : ""}`}>
         <a href="#" className="flex items-center gap-3 shrink-0">
           <Image
-            src="/images/isotype_bottom.png"
-            alt="Ópera Prima Isotipo"
-            width={60}
-            height={50}
-            className="h-10 w-auto md:h-12 object-contain"
+            src="/images/silencio.svg"
+            alt="Silencio Logo"
+            width={120}
+            height={40}
+            className="h-10 w-auto md:h-12 object-contain transparent-logo rounded-sm"
             priority
           />
         </a>
@@ -198,12 +228,48 @@ export default function Home() {
           </ul>
         </nav>
 
-        <button
-          onClick={() => openBooking("Carmen")}
-          className="btn-primary"
-        >
-          Boletería
-        </button>
+        <div className="navbar-actions">
+          {/* Theme Switcher Button */}
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle-btn"
+            aria-label="Cambiar tema"
+          >
+            {theme === "dark" ? (
+              // Venezuela dark mode icon: Starry Moon with yellow/white colors
+              <span className="theme-toggle-icon animate-fade">
+                <svg width="20" height="20" className="text-[var(--camel)]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12.3 22h-.1c-5.5-.2-9.9-4.8-9.7-10.3C2.7 6.3 7.1 2 12.5 2c.6 0 1.2.1 1.8.2.4.1.7.5.6.9-.1.4-.4.7-.8.7-3.9.4-6.8 3.8-6.4 7.8.4 3.5 3.3 6.3 6.9 6.6.5 0 .9.3.9.8v.1c-.2.5-.6.9-1.2.9zm.6-18.4c-4.3 1.1-7.2 5.1-6.7 9.6.5 4 3.7 7.1 7.7 7.6.6.1 1.2.1 1.7 0-3.3-1.8-5-5.6-4.1-9.3.8-3.3 3.6-5.8 7-6.5-.5-.1-1.1-.1-1.6-.1-.3-.4-.7-.4-1-.3z" />
+                  <circle cx="17" cy="6" r="1.2" fill="#FFFFFF" className="animate-pulse" />
+                  <circle cx="20" cy="9" r="1.5" fill="#FFFFFF" className="animate-pulse" />
+                  <circle cx="16" cy="12" r="0.9" fill="#FFFFFF" className="animate-pulse" />
+                </svg>
+              </span>
+            ) : (
+              // Argentina light mode icon: Sol de Mayo (Sun with rays)
+              <span className="theme-toggle-icon animate-fade">
+                <svg width="20" height="20" className="text-[var(--camel)]" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="5" fill="currentColor" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => openBooking("Carmen")}
+            className="btn-primary"
+          >
+            Boletería
+          </button>
+        </div>
       </header>
 
       {/* 2. CINEMATIC BILLBOARD / HERO CAROUSEL */}
@@ -393,11 +459,11 @@ export default function Home() {
           <div className="footer-col">
             <div className="footer-logo-container">
               <Image
-                src="/images/logo_full.png"
-                alt="Ópera Prima Logo Completo"
+                src="/images/silencio_isotipo.svg"
+                alt="Silencio Isotipo"
                 width={150}
                 height={87}
-                className="h-10 w-auto object-contain"
+                className="h-10 w-auto object-contain transparent-logo rounded-sm"
               />
             </div>
             <p className="footer-about">
@@ -463,11 +529,11 @@ export default function Home() {
           {/* Isotype in Center-Bottom of footer */}
           <div className="flex items-center justify-center gap-2">
             <Image
-              src="/images/isotype_bottom.png"
-              alt="Ópera Prima Isotipo"
+              src="/images/silencio_isotipo.svg"
+              alt="Silencio Isotipo"
               width={32}
               height={22}
-              className="h-5 w-auto opacity-40 hover:opacity-100 transition-opacity"
+              className="h-5 w-auto opacity-40 hover:opacity-100 transition-opacity transparent-logo rounded-sm"
             />
             <span className="text-[9px] uppercase tracking-widest text-[var(--smoky-rose)] font-semibold">
               OPERA PRIMA

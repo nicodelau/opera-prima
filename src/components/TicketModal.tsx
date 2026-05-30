@@ -21,7 +21,7 @@ const TIER_CONFIG = {
   Platea: { price: 12000, color: "var(--camel)" },
   Palcos: { price: 18000, color: "var(--dark-amaranth)" },
   Tertulia: { price: 8000, color: "var(--smoky-rose)" },
-  Paraíso: { price: 4000, color: "rgba(241, 233, 218, 0.4)" },
+  Paraíso: { price: 4000, color: "rgba(var(--eggshell-rgb), 0.4)" },
 };
 
 const SHOW_DATES: Record<string, string[]> = {
@@ -182,11 +182,11 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade">
       {/* Container Card */}
       <div 
-        className="glass-panel w-full max-w-5xl h-[90vh] md:h-[80vh] flex flex-col md:flex-row overflow-hidden border border-[rgba(186,154,99,0.3)] shadow-[0_0_50px_rgba(115,28,43,0.4)] bg-[rgba(10,2,3,0.95)]"
+        className="glass-panel w-full max-w-5xl h-[90vh] md:h-[80vh] flex flex-col md:flex-row overflow-hidden border border-[rgba(var(--camel-rgb),0.3)] shadow-[0_0_50px_rgba(var(--dark-amaranth-rgb),0.25)] bg-[var(--modal-bg)]"
         style={{ fontFamily: "var(--font-sans)" }}
       >
         {/* Left Side: Show Info & Ticket summary (Glassy backdrop) */}
-        <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-[rgba(186,154,99,0.15)] p-6 flex flex-col gap-6 bg-gradient-to-b from-[rgba(115,28,43,0.1)] to-transparent shrink-0">
+        <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-[rgba(var(--camel-rgb),0.15)] p-6 flex flex-col gap-6 bg-gradient-to-b from-[rgba(var(--dark-amaranth-rgb),0.1)] to-transparent shrink-0">
           <div>
             <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--camel)] font-bold">
               BOLETERÍA OFICIAL
@@ -206,7 +206,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                 <select
                   value={selectedShow}
                   onChange={(e) => setSelectedShow(e.target.value)}
-                  className="w-full bg-[rgba(20,4,6,0.8)] border border-[rgba(186,154,99,0.2)] rounded p-2 text-sm text-[var(--eggshell)] outline-none focus:border-[var(--camel)]"
+                  className="w-full bg-[var(--bg-dark-deep)] border border-[rgba(var(--camel-rgb),0.2)] rounded p-2 text-sm text-[var(--eggshell)] outline-none focus:border-[var(--camel)]"
                 >
                   <option value="Carmen">Carmen (Ópera)</option>
                   <option value="La Traviata">La Traviata (Ópera)</option>
@@ -221,7 +221,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                 <select
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full bg-[rgba(20,4,6,0.8)] border border-[rgba(186,154,99,0.2)] rounded p-2 text-sm text-[var(--eggshell)] outline-none focus:border-[var(--camel)]"
+                  className="w-full bg-[var(--bg-dark-deep)] border border-[rgba(var(--camel-rgb),0.2)] rounded p-2 text-sm text-[var(--eggshell)] outline-none focus:border-[var(--camel)]"
                 >
                   {(SHOW_DATES[selectedShow] || []).map((date, idx) => (
                     <option key={idx} value={date}>
@@ -233,7 +233,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
             </div>
           ) : (
             // Static selection overview
-            <div className="flex flex-col gap-2 bg-[rgba(115,28,43,0.15)] border border-[rgba(186,154,99,0.15)] rounded-lg p-4">
+            <div className="flex flex-col gap-2 bg-[rgba(var(--dark-amaranth-rgb),0.15)] border border-[rgba(var(--camel-rgb),0.15)] rounded-lg p-4">
               <h4 className="text-sm font-serif font-semibold text-[var(--camel)]">
                 {selectedShow}
               </h4>
@@ -261,7 +261,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[var(--dark-amaranth)] inline-block border border-[rgba(186,154,99,0.3)]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[var(--dark-amaranth)] inline-block border border-[rgba(var(--camel-rgb),0.3)]" />
                   <div>
                     <p className="font-medium text-[var(--eggshell)]">Palcos</p>
                     <p className="text-[10px] text-[var(--smoky-rose)]">$18.000</p>
@@ -286,7 +286,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
           )}
 
           {/* Selection Cart Summary */}
-          <div className="mt-auto flex flex-col gap-3 border-t border-[rgba(186,154,99,0.15)] pt-4">
+          <div className="mt-auto flex flex-col gap-3 border-t border-[rgba(var(--camel-rgb),0.15)] pt-4">
             <div className="flex justify-between items-center text-xs">
               <span className="text-[var(--smoky-rose)]">Butacas:</span>
               <span className="font-bold text-[var(--eggshell)]">{selectedSeats.length}</span>
@@ -298,7 +298,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                 {selectedSeats.map((seat) => (
                   <span
                     key={seat.id}
-                    className="text-[9px] font-semibold px-2 py-0.5 rounded bg-[rgba(186,154,99,0.15)] border border-[rgba(186,154,99,0.3)] text-[var(--camel)]"
+                    className="text-[9px] font-semibold px-2 py-0.5 rounded bg-[rgba(var(--camel-rgb),0.15)] border border-[rgba(var(--camel-rgb),0.3)] text-[var(--camel)]"
                   >
                     Fila {seat.row}-{seat.number} ({seat.tier})
                   </span>
@@ -306,7 +306,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
               </div>
             )}
 
-            <div className="flex justify-between items-end border-t border-dashed border-[rgba(186,154,99,0.1)] pt-2">
+            <div className="flex justify-between items-end border-t border-dashed border-[rgba(var(--camel-rgb),0.1)] pt-2">
               <span className="text-xs text-[var(--smoky-rose)]">Total:</span>
               <span className="text-xl font-bold font-serif text-[var(--camel)]">
                 ${totalCost.toLocaleString("es-AR")}
@@ -326,9 +326,9 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
         </div>
 
         {/* Right Side: Dynamic workflow (Booking Grid or Form or Success Card) */}
-        <div className="flex-1 flex flex-col relative overflow-hidden bg-[rgba(15,3,5,0.4)]">
+        <div className="flex-1 flex flex-col relative overflow-hidden bg-[rgba(var(--eggshell-rgb),0.02)]">
           {/* Top header navigation */}
-          <div className="flex items-center justify-between p-6 pb-2 border-b border-[rgba(186,154,99,0.1)]">
+          <div className="flex items-center justify-between p-6 pb-2 border-b border-[rgba(var(--camel-rgb),0.1)]">
             <div className="flex gap-4 text-xs font-semibold text-[var(--smoky-rose)]">
               <span className={step === "seats" ? "text-[var(--camel)] border-b border-[var(--camel)] pb-1" : ""}>
                 1. Selección
@@ -359,15 +359,15 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                 {/* Opera Stage Representation */}
                 <div className="w-full flex flex-col items-center gap-1.5 relative mb-4">
                   <div 
-                    className="w-4/5 h-8 border-b-2 border-[var(--camel)] rounded-[50%/0_0_100%_100%] flex items-center justify-center shadow-[0_4px_12px_rgba(186,154,99,0.2)]"
-                    style={{ background: "linear-gradient(to bottom, transparent, rgba(115,28,43,0.15))" }}
+                    className="w-4/5 h-8 border-b-2 border-[var(--camel)] rounded-[50%/0_0_100%_100%] flex items-center justify-center shadow-[0_4px_12px_rgba(var(--camel-rgb),0.2)]"
+                    style={{ background: "linear-gradient(to bottom, transparent, rgba(var(--dark-amaranth-rgb),0.15))" }}
                   >
                     <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--camel)] font-bold">
                       ESCENARIO
                     </span>
                   </div>
                   {/* Foso de la Orquesta */}
-                  <div className="w-3/5 h-3 border-b border-[rgba(186,154,99,0.2)] rounded-[50%/0_0_100%_100%] bg-black/40 flex items-center justify-center">
+                  <div className="w-3/5 h-3 border-b border-[rgba(var(--camel-rgb),0.2)] rounded-[50%/0_0_100%_100%] bg-[rgba(var(--eggshell-rgb),0.08)] flex items-center justify-center">
                     <span className="text-[7px] uppercase tracking-[0.25em] text-[var(--smoky-rose)]">
                       Orquesta Filarmónica
                     </span>
@@ -399,8 +399,8 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                                   seat.status === "sold"
                                     ? "bg-neutral-800/80 border-neutral-700/50 text-neutral-600 cursor-not-allowed"
                                     : seat.status === "selected"
-                                    ? "bg-[var(--camel)] border-[var(--camel)] text-[#0c0204] scale-110 shadow-[0_0_10px_rgba(186,154,99,0.4)]"
-                                    : "bg-transparent border-[rgba(186,154,99,0.4)] text-[var(--eggshell)] hover:bg-[rgba(186,154,99,0.1)] hover:border-[var(--camel)]"
+                                    ? "bg-[var(--camel)] border-[var(--camel)] text-[#0c0204] scale-110 shadow-[0_0_10px_rgba(var(--camel-rgb),0.4)]"
+                                    : "bg-transparent border-[rgba(var(--camel-rgb),0.4)] text-[var(--eggshell)] hover:bg-[rgba(var(--camel-rgb),0.1)] hover:border-[var(--camel)]"
                                 }`}
                                 title={`Platea - Fila ${seat.row}, Asiento ${seat.number} ($12.000)`}
                               >
@@ -418,7 +418,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                   {/* TIER 2: Palcos (Left Side / Right Side Box style) */}
                   <div className="flex justify-between items-center w-full max-w-md my-1">
                     {/* Left Palcos */}
-                    <div className="flex flex-col gap-2.5 border-r border-[rgba(186,154,99,0.15)] pr-4">
+                    <div className="flex flex-col gap-2.5 border-r border-[rgba(var(--camel-rgb),0.15)] pr-4">
                       <span className="text-[8px] uppercase tracking-wider text-[var(--camel)] font-bold text-left">
                         Palcos Izq
                       </span>
@@ -439,8 +439,8 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                                     seat.status === "sold"
                                       ? "bg-neutral-800 border-neutral-700/50 text-neutral-600 cursor-not-allowed"
                                       : seat.status === "selected"
-                                      ? "bg-[var(--dark-amaranth)] border-[var(--camel)] text-[var(--eggshell)] scale-110 shadow-[0_0_10px_rgba(115,28,43,0.5)]"
-                                      : "bg-transparent border-[rgba(115,28,43,0.5)] text-[var(--eggshell)] hover:bg-[rgba(115,28,43,0.15)]"
+                                      ? "bg-[var(--dark-amaranth)] border-[var(--camel)] text-[var(--eggshell)] scale-110 shadow-[0_0_10px_rgba(var(--dark-amaranth-rgb),0.5)]"
+                                      : "bg-transparent border-[rgba(var(--dark-amaranth-rgb),0.5)] text-[var(--eggshell)] hover:bg-[rgba(var(--dark-amaranth-rgb),0.15)]"
                                   }`}
                                   title={`Palco - ${seat.row}, Asiento ${seat.number} ($18.000)`}
                                 >
@@ -453,7 +453,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                     </div>
 
                     {/* Right Palcos */}
-                    <div className="flex flex-col gap-2.5 border-l border-[rgba(186,154,99,0.15)] pl-4 items-end">
+                    <div className="flex flex-col gap-2.5 border-l border-[rgba(var(--camel-rgb),0.15)] pl-4 items-end">
                       <span className="text-[8px] uppercase tracking-wider text-[var(--camel)] font-bold text-right">
                         Palcos Der
                       </span>
@@ -471,8 +471,8 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                                     seat.status === "sold"
                                       ? "bg-neutral-800 border-neutral-700/50 text-neutral-600 cursor-not-allowed"
                                       : seat.status === "selected"
-                                      ? "bg-[var(--dark-amaranth)] border-[var(--camel)] text-[var(--eggshell)] scale-110 shadow-[0_0_10px_rgba(115,28,43,0.5)]"
-                                      : "bg-transparent border-[rgba(115,28,43,0.5)] text-[var(--eggshell)] hover:bg-[rgba(115,28,43,0.15)]"
+                                      ? "bg-[var(--dark-amaranth)] border-[var(--camel)] text-[var(--eggshell)] scale-110 shadow-[0_0_10px_rgba(var(--dark-amaranth-rgb),0.5)]"
+                                      : "bg-transparent border-[rgba(var(--dark-amaranth-rgb),0.5)] text-[var(--eggshell)] hover:bg-[rgba(var(--dark-amaranth-rgb),0.15)]"
                                   }`}
                                   title={`Palco - ${seat.row}, Asiento ${seat.number} ($18.000)`}
                                 >
@@ -510,8 +510,8 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                                   seat.status === "sold"
                                     ? "bg-neutral-800/80 border-neutral-700/50 text-neutral-600 cursor-not-allowed"
                                     : seat.status === "selected"
-                                    ? "bg-[var(--smoky-rose)] border-[var(--smoky-rose)] text-[#0c0204] scale-110 shadow-[0_0_10px_rgba(156,95,93,0.5)]"
-                                    : "bg-transparent border-[rgba(156,95,93,0.4)] text-[var(--eggshell)] hover:bg-[rgba(156,95,93,0.15)]"
+                                    ? "bg-[var(--smoky-rose)] border-[var(--smoky-rose)] text-[#0c0204] scale-110 shadow-[0_0_10px_rgba(var(--smoky-rose-rgb),0.5)]"
+                                    : "bg-transparent border-[rgba(var(--smoky-rose-rgb),0.4)] text-[var(--eggshell)] hover:bg-[rgba(var(--smoky-rose-rgb),0.15)]"
                                 }`}
                                 title={`Tertulia - Fila ${seat.row}, Asiento ${seat.number} ($8.000)`}
                               >
@@ -528,7 +528,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
 
                   {/* TIER 4: Paraíso (Upper Gallery) */}
                   <div className="flex flex-col gap-2.5 items-center w-full">
-                    <span className="text-[9px] uppercase tracking-wider text-[rgba(241,233,218,0.4)] font-bold">
+                    <span className="text-[9px] uppercase tracking-wider text-[rgba(var(--eggshell-rgb),0.4)] font-bold">
                       Paraíso (Galería Alta)
                     </span>
                     {["G", "H"].map((row) => (
@@ -548,7 +548,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                                   seat.status === "sold"
                                     ? "bg-neutral-800/80 border-neutral-700/50 text-neutral-600 cursor-not-allowed"
                                     : seat.status === "selected"
-                                    ? "bg-[var(--eggshell)] border-[var(--eggshell)] text-[#0c0204] scale-110 shadow-[0_0_10px_rgba(241,233,218,0.5)]"
+                                    ? "bg-[var(--eggshell)] border-[var(--eggshell)] text-[var(--bg-dark-deep)] scale-110 shadow-[0_0_10px_rgba(var(--eggshell-rgb),0.5)]"
                                     : "bg-transparent border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800/30"
                                 }`}
                                 title={`Paraíso - Fila ${seat.row}, Asiento ${seat.number} ($4.000)`}
@@ -590,7 +590,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g. Nicolas García"
-                      className="w-full bg-[rgba(20,4,6,0.8)] border border-[rgba(186,154,99,0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
+                      className="w-full bg-[var(--bg-dark-deep)] border border-[rgba(var(--camel-rgb),0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
                     />
                   </div>
 
@@ -604,7 +604,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="e.g. nicolas@ejemplo.com"
-                      className="w-full bg-[rgba(20,4,6,0.8)] border border-[rgba(186,154,99,0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
+                      className="w-full bg-[var(--bg-dark-deep)] border border-[rgba(var(--camel-rgb),0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
                     />
                   </div>
 
@@ -618,7 +618,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                       value={card}
                       onChange={(e) => setCard(e.target.value.replace(/\D/g, "").slice(0, 16))}
                       placeholder="4500 0000 0000 0000"
-                      className="w-full bg-[rgba(20,4,6,0.8)] border border-[rgba(186,154,99,0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
+                      className="w-full bg-[var(--bg-dark-deep)] border border-[rgba(var(--camel-rgb),0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
                     />
                   </div>
 
@@ -633,7 +633,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                         value={expiry}
                         onChange={(e) => setExpiry(e.target.value.slice(0, 5))}
                         placeholder="MM/AA"
-                        className="w-full bg-[rgba(20,4,6,0.8)] border border-[rgba(186,154,99,0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
+                        className="w-full bg-[var(--bg-dark-deep)] border border-[rgba(var(--camel-rgb),0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
                       />
                     </div>
                     <div className="flex flex-col gap-1">
@@ -646,7 +646,7 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
                         value={cvv}
                         onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
                         placeholder="***"
-                        className="w-full bg-[rgba(20,4,6,0.8)] border border-[rgba(186,154,99,0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
+                        className="w-full bg-[var(--bg-dark-deep)] border border-[rgba(var(--camel-rgb),0.2)] focus:border-[var(--camel)] rounded p-2.5 text-sm text-[var(--eggshell)] outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -692,15 +692,15 @@ export default function TicketModal({ isOpen, onClose, initialShow }: TicketModa
 
                 {/* Simulated Luxury Opera Ticket Slip */}
                 <div 
-                  className="w-full border border-[rgba(186,154,99,0.35)] rounded-xl bg-[rgba(115,28,43,0.15)] flex flex-col overflow-hidden relative shadow-xl"
+                  className="w-full border border-[rgba(var(--camel-rgb),0.35)] rounded-xl bg-[rgba(var(--dark-amaranth-rgb),0.15)] flex flex-col overflow-hidden relative shadow-xl"
                   style={{ backgroundImage: "var(--bg-spotlight)" }}
                 >
                   {/* Dotted division line on side for tickets */}
-                  <div className="absolute top-0 bottom-0 left-3/4 border-l border-dashed border-[rgba(186,154,99,0.3)]" />
+                  <div className="absolute top-0 bottom-0 left-3/4 border-l border-dashed border-[rgba(var(--camel-rgb),0.3)]" />
                   
                   {/* Circle punctures on side */}
-                  <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[rgba(15,3,5,1)] border border-[rgba(186,154,99,0.3)]" />
-                  <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[rgba(15,3,5,1)] border border-[rgba(186,154,99,0.3)]" />
+                  <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[var(--bg-dark-deep)] border border-[rgba(var(--camel-rgb),0.3)]" />
+                  <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[var(--bg-dark-deep)] border border-[rgba(var(--camel-rgb),0.3)]" />
 
                   {/* Main Ticket body */}
                   <div className="flex p-5 gap-4">
