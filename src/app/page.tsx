@@ -293,7 +293,7 @@ export default function Home() {
               </div>
               <h1 className="billboard-title font-serif">{show.title}</h1>
               <p className="billboard-desc">{show.desc}</p>
-              <div className="flex gap-4">
+              <div className="billboard-actions">
                 <button
                   onClick={() => openBooking(show.title)}
                   className="btn-primary"
@@ -564,6 +564,19 @@ export default function Home() {
         onClose={() => setBookingOpen(false)}
         initialShow={bookingShow}
       />
+
+      {/* Floating premium Home / Back to Top Button */}
+      {scrolled && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="back-to-top-btn"
+          aria-label="Volver al inicio"
+        >
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <polyline points="18 15 12 9 6 15" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
