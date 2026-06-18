@@ -6,10 +6,10 @@ import AudioPlayer from "@/components/AudioPlayer";
 import TicketModal from "@/components/TicketModal";
 
 interface BillboardShow {
-  id: number;
+  id: number | string;
   title: string;
   composer: string;
-  tag: string;
+  tag?: string | null;
   desc: string;
   image: string;
 }
@@ -42,12 +42,12 @@ const BILLBOARD_SHOWS: BillboardShow[] = [
 ];
 
 interface CalendarShow {
-  id: number;
+  id: number | string;
   title: string;
   composer: string;
-  category: "opera" | "ballet" | "concierto" | "infantil";
-  dates: string;
-  price: string;
+  category: string;
+  dates?: string | null;
+  price?: string | null;
   desc: string;
   image: string;
 }
@@ -120,6 +120,29 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeTab, setActiveTab] = useState<"todos" | "opera" | "ballet" | "concierto" | "infantil">("todos");
 
+  const [billboardShows, setBillboardShows] = useState<BillboardShow[]>(BILLBOARD_SHOWS);
+  const [calendarShows, setCalendarShows] = useState<CalendarShow[]>(CALENDAR_SHOWS);
+
+  // Load shows from database
+  useEffect(() => {
+    async function loadShows() {
+      try {
+        const res = await fetch("/api/shows");
+        if (res.ok) {
+          const data = await res.json();
+          const billboard = data.filter((s: any) => s.type === "billboard");
+          const calendar = data.filter((s: any) => s.type === "calendar");
+          
+          if (billboard.length > 0) setBillboardShows(billboard);
+          if (calendar.length > 0) setCalendarShows(calendar);
+        }
+      } catch (err) {
+        console.error("Failed to load shows from DB:", err);
+      }
+    }
+    loadShows();
+  }, []);
+
   // Theme State ("dark" | "light")
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
@@ -174,10 +197,10 @@ export default function Home() {
   // Carousel AutoPlay
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % BILLBOARD_SHOWS.length);
+      setActiveSlide((prev) => (prev + 1) % billboardShows.length);
     }, 7000);
     return () => clearInterval(interval);
-  }, [activeSlide]);
+  }, [activeSlide, billboardShows.length]);
 
   const openBooking = (showName: string) => {
     // Standardize show name to match modal options
@@ -200,8 +223,8 @@ export default function Home() {
 
   // Filter shows based on category
   const filteredShows = activeTab === "todos"
-    ? CALENDAR_SHOWS
-    : CALENDAR_SHOWS.filter((s) => s.category === activeTab);
+    ? calendarShows
+    : calendarShows.filter((s) => s.category === activeTab);
 
   return (
     <div className="theater-bg min-h-screen">
@@ -274,7 +297,7 @@ export default function Home() {
 
       {/* 2. CINEMATIC BILLBOARD / HERO CAROUSEL */}
       <section id="cartelera" className="billboard">
-        {BILLBOARD_SHOWS.map((show, idx) => (
+        {billboardShows.map((show, idx) => (
           <div
             key={show.id}
             className={`billboard-slide ${idx === activeSlide ? "active" : ""}`}
@@ -295,7 +318,7 @@ export default function Home() {
               <p className="billboard-desc">{show.desc}</p>
               <div className="billboard-actions">
                 <button
-                  onClick={() => openBooking(show.title)}
+                  onClick={() => openBooking(show.title as string)}
                   className="btn-primary"
                 >
                   Comprar Entradas
@@ -313,7 +336,7 @@ export default function Home() {
 
         {/* Carousel Dots */}
         <div className="billboard-dots">
-          {BILLBOARD_SHOWS.map((_, idx) => (
+          {billboardShows.map((_, idx) => (
             <button
               key={idx}
               className={`billboard-dot ${idx === activeSlide ? "active" : ""}`}

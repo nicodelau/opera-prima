@@ -13,12 +13,21 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Missing email_id in payload.data" }, { status: 400 });
       }
 
-      const recipientEmails = payload.data.to || [];
+      const recipientEmails: string[] = payload.data.to || [];
       
-      // Find the user in our database who is the recipient of this email
+      // Clean and normalize email addresses (handle formats like "Name <email>" and lowercase them)
+      const cleanRecipientEmails = recipientEmails.map((email: string) => {
+        const match = email.match(/<(.+?)>/);
+        return (match ? match[1] : email).trim().toLowerCase();
+      });
+
+      // Find the user in our database who is the recipient of this email (case-insensitive)
       let user = await prisma.user.findFirst({
         where: {
-          email: { in: recipientEmails },
+          email: {
+            in: cleanRecipientEmails,
+            mode: "insensitive",
+          },
         },
       });
 

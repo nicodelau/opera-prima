@@ -30,3 +30,18 @@ model Email {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model Show {
+  id        String   @id @default(uuid())
+  title     String
+  composer  String
+  tag       String?  // e.g. "ÓPERA PRINCIPAL"
+  desc      String
+  image     String
+  type      String   // "billboard" (hero slider) or "calendar" (normal shows)
+  category  String?  // "opera" | "ballet" | "concierto" | "infantil" (for calendar shows)
+  dates     String?  // e.g. "Mayo 30 - Junio 5" (for calendar shows)
+  price     String?  // e.g. "$4.000" (for calendar shows)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
