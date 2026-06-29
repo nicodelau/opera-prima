@@ -44,8 +44,8 @@ export async function POST(request: Request) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // First user is ALWAYS admin. Subsequent users default to "user" unless admin sets it to "admin".
-    const finalRole = isBootstrap ? "admin" : (role === "admin" ? "admin" : "user");
+    // First user is ALWAYS admin. Subsequent users can be admin, editor, or user.
+    const finalRole = isBootstrap ? "admin" : (role === "admin" ? "admin" : (role === "editor" ? "editor" : "user"));
 
     const newUser = await prisma.user.create({
       data: {

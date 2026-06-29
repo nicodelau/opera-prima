@@ -31,8 +31,8 @@ export async function POST(request: Request) {
       where: { id: session.userId },
     });
 
-    if (!requester || requester.role !== "admin") {
-      return NextResponse.json({ error: "Prohibido. Solo administradores." }, { status: 403 });
+    if (!requester || (requester.role !== "admin" && requester.role !== "editor")) {
+      return NextResponse.json({ error: "Prohibido. Solo administradores y editores." }, { status: 403 });
     }
 
     const { title, composer, tag, desc, image, type, category, dates, price } = await request.json();
@@ -73,8 +73,8 @@ export async function PUT(request: Request) {
       where: { id: session.userId },
     });
 
-    if (!requester || requester.role !== "admin") {
-      return NextResponse.json({ error: "Prohibido. Solo administradores." }, { status: 403 });
+    if (!requester || (requester.role !== "admin" && requester.role !== "editor")) {
+      return NextResponse.json({ error: "Prohibido. Solo administradores y editores." }, { status: 403 });
     }
 
     const { id, title, composer, tag, desc, image, type, category, dates, price } = await request.json();
@@ -116,8 +116,8 @@ export async function DELETE(request: Request) {
       where: { id: session.userId },
     });
 
-    if (!requester || requester.role !== "admin") {
-      return NextResponse.json({ error: "Prohibido. Solo administradores." }, { status: 403 });
+    if (!requester || (requester.role !== "admin" && requester.role !== "editor")) {
+      return NextResponse.json({ error: "Prohibido. Solo administradores y editores." }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

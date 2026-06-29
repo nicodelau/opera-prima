@@ -681,6 +681,12 @@
   border-color: rgba(252, 209, 22, 0.25) !important;
 }
 
+.roleEditor {
+  background: rgba(168, 85, 247, 0.08) !important;
+  color: #c084fc !important;
+  border-color: rgba(168, 85, 247, 0.25) !important;
+}
+
 .roleUser {
   background: rgba(255, 255, 255, 0.03) !important;
   color: var(--eggshell) !important;

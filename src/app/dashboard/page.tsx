@@ -105,6 +105,25 @@ export default function Dashboard() {
   const [showFormSuccess, setShowFormSuccess] = useState<string | null>(null);
   const [showFormError, setShowFormError] = useState<string | null>(null);
 
+  // Landing Config States
+  const [landingTab, setLandingTab] = useState<"shows" | "counter">("shows");
+  const [landingConfigTitle, setLandingConfigTitle] = useState("");
+  const [landingConfigDate, setLandingConfigDate] = useState("");
+  const [landingConfigLoading, setLandingConfigLoading] = useState(false);
+  const [landingConfigSuccess, setLandingConfigSuccess] = useState<string | null>(null);
+  const [landingConfigError, setLandingConfigError] = useState<string | null>(null);
+
+  // Quotes States
+  const [quotesList, setQuotesList] = useState<any[]>([]);
+  const [quotesLoading, setQuotesLoading] = useState(false);
+  const [newQuoteText, setNewQuoteText] = useState("");
+  const [newQuoteAuthor, setNewQuoteAuthor] = useState("");
+  const [newQuoteEnabled, setNewQuoteEnabled] = useState(true);
+  const [quoteFormLoading, setQuoteFormLoading] = useState(false);
+  const [quoteFormSuccess, setQuoteFormSuccess] = useState<string | null>(null);
+  const [quoteFormError, setQuoteFormError] = useState<string | null>(null);
+  const [editingQuote, setEditingQuote] = useState<any | null>(null);
+
   // Check if session exists and if DB is empty on mount
   const checkSessionAndBootstrap = async () => {
     try {
@@ -140,6 +159,8 @@ export default function Dashboard() {
         fetchUsers();
       } else if (activeSection === "landing") {
         fetchShows();
+        fetchLandingConfig();
+        fetchQuotes();
       }
     }
   }, [user, activeSection]);
@@ -225,6 +246,152 @@ export default function Dashboard() {
       console.error(err);
     } finally {
       setShowsLoading(false);
+    }
+  };
+
+  const fetchLandingConfig = async () => {
+    try {
+      setLandingConfigLoading(true);
+      const res = await fetch("/api/landing-config");
+      if (res.ok) {
+        const data = await res.json();
+        if (data) {
+          setLandingConfigTitle(data.title || "Próximo Estreno");
+          if (data.targetDate) {
+            const d = new Date(data.targetDate);
+            const pad = (num: number) => String(num).padStart(2, "0");
+            const formatted = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            setLandingConfigDate(formatted);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load landing config:", err);
+    } finally {
+      setLandingConfigLoading(false);
+    }
+  };
+
+  const fetchQuotes = async () => {
+    try {
+      setQuotesLoading(true);
+      const res = await fetch("/api/quotes");
+      if (res.ok) {
+        const data = await res.json();
+        setQuotesList(data);
+      }
+    } catch (err) {
+      console.error("Failed to load quotes:", err);
+    } finally {
+      setQuotesLoading(false);
+    }
+  };
+
+  const handleSaveLandingConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLandingConfigLoading(true);
+    setLandingConfigSuccess(null);
+    setLandingConfigError(null);
+
+    try {
+      const res = await fetch("/api/landing-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: landingConfigTitle,
+          targetDate: new Date(landingConfigDate).toISOString(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al guardar configuración");
+
+      setLandingConfigSuccess("¡Configuración del contador guardada con éxito!");
+    } catch (err: any) {
+      setLandingConfigError(err.message || "Error al guardar");
+    } finally {
+      setLandingConfigLoading(false);
+    }
+  };
+
+  const handleAddQuote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setQuoteFormLoading(true);
+    setQuoteFormSuccess(null);
+    setQuoteFormError(null);
+
+    try {
+      const url = "/api/quotes";
+      const method = editingQuote ? "PUT" : "POST";
+      const bodyData: any = {
+        text: newQuoteText,
+        author: newQuoteAuthor,
+        enabled: newQuoteEnabled,
+      };
+      if (editingQuote) {
+        bodyData.id = editingQuote.id;
+      }
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || (editingQuote ? "Error al actualizar frase" : "Error al agregar frase"));
+
+      setQuoteFormSuccess(editingQuote ? "¡Frase actualizada con éxito!" : "¡Frase agregada con éxito!");
+      setNewQuoteText("");
+      setNewQuoteAuthor("");
+      setNewQuoteEnabled(true);
+      setEditingQuote(null);
+      fetchQuotes();
+    } catch (err: any) {
+      setQuoteFormError(err.message || "Error al procesar la frase");
+    } finally {
+      setQuoteFormLoading(false);
+    }
+  };
+
+  const handleToggleQuote = async (id: string, currentStatus: boolean) => {
+    try {
+      const res = await fetch("/api/quotes", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          enabled: !currentStatus,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Error al alternar estado");
+      }
+
+      fetchQuotes();
+    } catch (err: any) {
+      alert(err.message || "Error al alternar estado de la frase");
+    }
+  };
+
+  const handleDeleteQuote = async (id: string) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar esta frase?")) return;
+
+    try {
+      const res = await fetch(`/api/quotes?id=${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Error al eliminar la frase");
+      }
+
+      fetchQuotes();
+    } catch (err: any) {
+      alert(err.message || "Error al eliminar");
     }
   };
 
@@ -601,6 +768,8 @@ export default function Dashboard() {
   }
 
   // 3. Authenticated Dashboard UI
+  const canEdit = user.role === "admin" || user.role === "editor";
+
   return (
     <div className={styles.dashboardLayout}>
       
@@ -1059,6 +1228,7 @@ export default function Dashboard() {
                       style={{ background: "#0a0a0a" }}
                     >
                       <option value="user">Usuario regular</option>
+                      <option value="editor">Editor</option>
                       <option value="admin">Administrador (Completo)</option>
                     </select>
                   </div>
@@ -1109,7 +1279,7 @@ export default function Dashboard() {
                             </td>
                             <td>{usr.email}</td>
                             <td>
-                              <span className={`${styles.roleBadge} ${usr.role === "admin" ? styles.roleAdmin : styles.roleUser}`}>
+                              <span className={`${styles.roleBadge} ${usr.role === "admin" ? styles.roleAdmin : (usr.role === "editor" ? styles.roleEditor : styles.roleUser)}`}>
                                 {usr.role}
                               </span>
                             </td>
@@ -1147,247 +1317,476 @@ export default function Dashboard() {
             <div className={styles.contentHeader}>
               <div>
                 <h1 className={styles.sectionTitle}>Editor de Landing Page</h1>
-                <p className={styles.sectionSubtitle}>Maneja el banner principal (carrusel) y el catálogo de espectáculos</p>
+                <p className={styles.sectionSubtitle}>Maneja el contador principal, las frases del autor y el catálogo de espectáculos</p>
               </div>
             </div>
 
-            <div className={styles.cmsGrid}>
-              
-              {/* Shows Left List Panel */}
-              <div className={styles.cmsListPane}>
-                <div className={styles.panel}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                    <h2 className={styles.panelTitle} style={{ marginBottom: 0, borderBottom: "none", paddingBottom: 0 }}>
-                      Espectáculos y Banners
-                    </h2>
-                    
-                    {user.role === "admin" && (
-                      <button
-                        onClick={() => {
-                          setSelectedShow(null);
-                          setShowFormMode("create");
-                        }}
-                        className={styles.submitBtn}
-                        style={{ width: "auto", fontSize: "0.85rem", padding: "0.5rem 1rem" }}
-                      >
-                        + Añadir Obra
-                      </button>
-                    )}
-                  </div>
+            <div className={styles.tabs} style={{ marginBottom: "1.5rem", maxWidth: "450px" }}>
+              <button
+                onClick={() => setLandingTab("shows")}
+                className={`${styles.tabBtn} ${landingTab === "shows" ? styles.tabActive : ""}`}
+              >
+                Espectáculos y Banners
+              </button>
+              <button
+                onClick={() => setLandingTab("counter")}
+                className={`${styles.tabBtn} ${landingTab === "counter" ? styles.tabActive : ""}`}
+              >
+                Contador & Frases
+              </button>
+            </div>
 
-                  {showsLoading ? (
-                    <div className={styles.emptyState}>
-                      <div className={styles.emptyIcon}>⏳</div>
-                      <p>Cargando espectáculos...</p>
-                    </div>
-                  ) : shows.length === 0 ? (
-                    <div className={styles.emptyState}>
-                      <p>No se encontraron espectáculos registrados.</p>
-                    </div>
-                  ) : (
-                    <div className={styles.showList}>
-                      {shows.map((shw) => (
-                        <div
-                          key={shw.id}
-                          onClick={() => {
-                            setSelectedShow(shw);
-                            setShowFormMode("edit");
-                          }}
-                          className={`${styles.showItem} ${selectedShow?.id === shw.id && showFormMode === "edit" ? styles.showItemActive : ""}`}
-                        >
-                          <div
-                            className={styles.showThumbnail}
-                            style={{ backgroundImage: `url(${shw.image})` }}
-                          />
-                          <div className={styles.showTextMeta}>
-                            <div className={styles.showTypeRow}>
-                              <span className={`${styles.badge} ${shw.type === "billboard" ? styles.badgeSent : styles.badgeReceived}`}>
-                                {shw.type === "billboard" ? "Hero Slider" : "Catálogo"}
-                              </span>
-                              {shw.category && <span className={styles.showCategoryBadge}>{shw.category}</span>}
-                            </div>
-                            <span className={styles.showItemTitle}>{shw.title}</span>
-                            <span className={styles.showItemComposer}>{shw.composer}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Show Form Right Panel */}
-              <div className={styles.cmsFormPane}>
+            {landingTab === "shows" ? (
+              <div className={styles.cmsGrid}>
                 
-                {showFormMode !== "closed" && (
+                {/* Shows Left List Panel */}
+                <div className={styles.cmsListPane}>
                   <div className={styles.panel}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.75rem", marginBottom: "1.5rem" }}>
-                      <h2 className={styles.panelTitle} style={{ borderBottom: "none", paddingBottom: 0, marginBottom: 0 }}>
-                        {showFormMode === "edit" ? "Editar Obra" : "Nueva Obra"}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+                      <h2 className={styles.panelTitle} style={{ marginBottom: 0, borderBottom: "none", paddingBottom: 0 }}>
+                        Espectáculos y Banners
                       </h2>
                       
-                      {showFormMode === "edit" && selectedShow && user.role === "admin" && (
+                      {canEdit && (
                         <button
-                          onClick={() => handleDeleteShow(selectedShow.id)}
-                          className={styles.deleteBtn}
+                          onClick={() => {
+                            setSelectedShow(null);
+                            setShowFormMode("create");
+                          }}
+                          className={styles.submitBtn}
+                          style={{ width: "auto", fontSize: "0.85rem", padding: "0.5rem 1rem" }}
                         >
-                          Eliminar Obra
+                          + Añadir Obra
                         </button>
                       )}
                     </div>
 
-                    {showFormSuccess && <div className={`${styles.alert} ${styles.alertSuccess}`}>{showFormSuccess}</div>}
-                    {showFormError && <div className={`${styles.alert} ${styles.alertError}`}>{showFormError}</div>}
-
-                    {user.role !== "admin" && (
-                      <p className={styles.formHint} style={{ color: "var(--camel)" }}>
-                        * Modo lectura. Los usuarios regulares no pueden modificar el contenido de la web.
-                      </p>
-                    )}
-
-                    <form onSubmit={handleSaveShow}>
-                      <div className={styles.formGrid2}>
-                        <div className={styles.formGroup}>
-                          <label className={styles.formLabel}>Título</label>
-                          <input
-                            type="text"
-                            required
-                            disabled={user.role !== "admin"}
-                            placeholder="Nombre de la Obra"
-                            className={styles.formInput}
-                            value={showTitle}
-                            onChange={(e) => setShowTitle(e.target.value)}
-                          />
-                        </div>
-
-                        <div className={styles.formGroup}>
-                          <label className={styles.formLabel}>Compositor / Director</label>
-                          <input
-                            type="text"
-                            required
-                            disabled={user.role !== "admin"}
-                            placeholder="Giuseppe Verdi"
-                            className={styles.formInput}
-                            value={showComposer}
-                            onChange={(e) => setShowComposer(e.target.value)}
-                          />
-                        </div>
+                    {showsLoading ? (
+                      <div className={styles.emptyState}>
+                        <div className={styles.emptyIcon}>⏳</div>
+                        <p>Cargando espectáculos...</p>
                       </div>
-
-                      <div className={styles.formGrid2}>
-                        <div className={styles.formGroup}>
-                          <label className={styles.formLabel}>Ubicación en la Web (Tipo)</label>
-                          <select
-                            disabled={user.role !== "admin"}
-                            className={styles.formInput}
-                            value={showType}
-                            onChange={(e) => setShowType(e.target.value)}
-                            style={{ background: "#0a0a0a" }}
+                    ) : shows.length === 0 ? (
+                      <div className={styles.emptyState}>
+                        <p>No se encontraron espectáculos registrados.</p>
+                      </div>
+                    ) : (
+                      <div className={styles.showList}>
+                        {shows.map((shw) => (
+                          <div
+                            key={shw.id}
+                            onClick={() => {
+                              setSelectedShow(shw);
+                              setShowFormMode("edit");
+                            }}
+                            className={`${styles.showItem} ${selectedShow?.id === shw.id && showFormMode === "edit" ? styles.showItemActive : ""}`}
                           >
-                            <option value="billboard">Carrusel Principal (Banner arriba)</option>
-                            <option value="calendar">Catálogo / Grilla (Temporada abajo)</option>
-                          </select>
-                        </div>
+                            <div
+                              className={styles.showThumbnail}
+                              style={{ backgroundImage: `url(${shw.image})` }}
+                            />
+                            <div className={styles.showTextMeta}>
+                              <div className={styles.showTypeRow}>
+                                <span className={`${styles.badge} ${shw.type === "billboard" ? styles.badgeSent : styles.badgeReceived}`}>
+                                  {shw.type === "billboard" ? "Hero Slider" : "Catálogo"}
+                                </span>
+                                {shw.category && <span className={styles.showCategoryBadge}>{shw.category}</span>}
+                              </div>
+                              <span className={styles.showItemTitle}>{shw.title}</span>
+                              <span className={styles.showItemComposer}>{shw.composer}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-                        <div className={styles.formGroup}>
-                          <label className={styles.formLabel}>Ruta de la Imagen</label>
-                          <input
-                            type="text"
-                            required
-                            disabled={user.role !== "admin"}
-                            placeholder="/images/hero_carmen.png"
-                            className={styles.formInput}
-                            value={showImage}
-                            onChange={(e) => setShowImage(e.target.value)}
-                          />
-                        </div>
+                {/* Show Form Right Panel */}
+                <div className={styles.cmsFormPane}>
+                  
+                  {showFormMode !== "closed" && (
+                    <div className={styles.panel}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.75rem", marginBottom: "1.5rem" }}>
+                        <h2 className={styles.panelTitle} style={{ borderBottom: "none", paddingBottom: 0, marginBottom: 0 }}>
+                          {showFormMode === "edit" ? "Editar Obra" : "Nueva Obra"}
+                        </h2>
+                        
+                        {showFormMode === "edit" && selectedShow && canEdit && (
+                          <button
+                            onClick={() => handleDeleteShow(selectedShow.id)}
+                            className={styles.deleteBtn}
+                          >
+                            Eliminar Obra
+                          </button>
+                        )}
                       </div>
 
-                      {showType === "billboard" ? (
-                        <div className={styles.formGroup}>
-                          <label className={styles.formLabel}>Etiqueta Especial</label>
-                          <input
-                            type="text"
-                            disabled={user.role !== "admin"}
-                            placeholder="ÓPERA PRINCIPAL"
-                            className={styles.formInput}
-                            value={showTag}
-                            onChange={(e) => setShowTag(e.target.value)}
-                          />
-                        </div>
-                      ) : (
-                        <div className={styles.formGrid3}>
+                      {showFormSuccess && <div className={`${styles.alert} ${styles.alertSuccess}`}>{showFormSuccess}</div>}
+                      {showFormError && <div className={`${styles.alert} ${styles.alertError}`}>{showFormError}</div>}
+
+                      {!canEdit && (
+                        <p className={styles.formHint} style={{ color: "var(--camel)" }}>
+                          * Modo lectura. Los usuarios regulares no pueden modificar el contenido de la web.
+                        </p>
+                      )}
+
+                      <form onSubmit={handleSaveShow}>
+                        <div className={styles.formGrid2}>
                           <div className={styles.formGroup}>
-                            <label className={styles.formLabel}>Categoría</label>
-                            <select
-                              disabled={user.role !== "admin"}
+                            <label className={styles.formLabel}>Título</label>
+                            <input
+                              type="text"
+                              required
+                              disabled={!canEdit}
+                              placeholder="Nombre de la Obra"
                               className={styles.formInput}
-                              value={showCategory}
-                              onChange={(e) => setShowCategory(e.target.value)}
+                              value={showTitle}
+                              onChange={(e) => setShowTitle(e.target.value)}
+                            />
+                          </div>
+
+                          <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Compositor / Director</label>
+                            <input
+                              type="text"
+                              required
+                              disabled={!canEdit}
+                              placeholder="Giuseppe Verdi"
+                              className={styles.formInput}
+                              value={showComposer}
+                              onChange={(e) => setShowComposer(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className={styles.formGrid2}>
+                          <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Ubicación en la Web (Tipo)</label>
+                            <select
+                              disabled={!canEdit}
+                              className={styles.formInput}
+                              value={showType}
+                              onChange={(e) => setShowType(e.target.value)}
                               style={{ background: "#0a0a0a" }}
                             >
-                              <option value="opera">Ópera</option>
-                              <option value="ballet">Ballet</option>
-                              <option value="concierto">Concierto</option>
-                              <option value="infantil">Infantil</option>
+                              <option value="billboard">Carrusel Principal (Banner arriba)</option>
+                              <option value="calendar">Catálogo / Grilla (Temporada abajo)</option>
                             </select>
                           </div>
 
                           <div className={styles.formGroup}>
-                            <label className={styles.formLabel}>Fechas</label>
+                            <label className={styles.formLabel}>Ruta de la Imagen</label>
                             <input
                               type="text"
-                              disabled={user.role !== "admin"}
-                              placeholder="Mayo 30 - Junio 5"
+                              required
+                              disabled={!canEdit}
+                              placeholder="/images/hero_carmen.png"
                               className={styles.formInput}
-                              value={showDates}
-                              onChange={(e) => setShowDates(e.target.value)}
-                            />
-                          </div>
-
-                          <div className={styles.formGroup}>
-                            <label className={styles.formLabel}>Precio Entrada</label>
-                            <input
-                              type="text"
-                              disabled={user.role !== "admin"}
-                              placeholder="$4.000"
-                              className={styles.formInput}
-                              value={showPrice}
-                              onChange={(e) => setShowPrice(e.target.value)}
+                              value={showImage}
+                              onChange={(e) => setShowImage(e.target.value)}
                             />
                           </div>
                         </div>
-                      )}
 
+                        {showType === "billboard" ? (
+                          <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Etiqueta Especial</label>
+                            <input
+                              type="text"
+                              disabled={!canEdit}
+                              placeholder="ÓPERA PRINCIPAL"
+                              className={styles.formInput}
+                              value={showTag}
+                              onChange={(e) => setShowTag(e.target.value)}
+                            />
+                          </div>
+                        ) : (
+                          <div className={styles.formGrid3}>
+                            <div className={styles.formGroup}>
+                              <label className={styles.formLabel}>Categoría</label>
+                              <select
+                                disabled={!canEdit}
+                                className={styles.formInput}
+                                value={showCategory}
+                                onChange={(e) => setShowCategory(e.target.value)}
+                                style={{ background: "#0a0a0a" }}
+                              >
+                                <option value="opera">Ópera</option>
+                                <option value="ballet">Ballet</option>
+                                <option value="concierto">Concierto</option>
+                                <option value="infantil">Infantil</option>
+                              </select>
+                            </div>
+
+                            <div className={styles.formGroup}>
+                              <label className={styles.formLabel}>Fechas</label>
+                              <input
+                                type="text"
+                                disabled={!canEdit}
+                                placeholder="Mayo 30 - Junio 5"
+                                className={styles.formInput}
+                                value={showDates}
+                                onChange={(e) => setShowDates(e.target.value)}
+                              />
+                            </div>
+
+                            <div className={styles.formGroup}>
+                              <label className={styles.formLabel}>Precio Entrada</label>
+                              <input
+                                type="text"
+                                disabled={!canEdit}
+                                placeholder="$4.000"
+                                className={styles.formInput}
+                                value={showPrice}
+                                onChange={(e) => setShowPrice(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className={styles.formGroup}>
+                          <label className={styles.formLabel}>Descripción breve</label>
+                          <textarea
+                            required
+                            disabled={!canEdit}
+                            placeholder="Sinopsis o detalles de la obra..."
+                            className={styles.formTextarea}
+                            value={showDesc}
+                            onChange={(e) => setShowDesc(e.target.value)}
+                          />
+                        </div>
+
+                        {canEdit && (
+                          <button type="submit" disabled={showFormLoading} className={styles.submitBtn}>
+                            {showFormLoading ? "Guardando..." : "Guardar Espectáculo"}
+                          </button>
+                        )}
+                      </form>
+                    </div>
+                  )}
+
+                  {showFormMode === "closed" && (
+                    <div className={styles.emptyState} style={{ background: "var(--glass-bg)", borderRadius: "12px" }}>
+                      <div className={styles.emptyIcon}>🎬</div>
+                      <p>Selecciona una obra de la lista para verla o editarla.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              // COUNTDOWN TIMER AND QUOTES MANAGEMENT
+              <div className={styles.cmsGrid}>
+                
+                {/* Left panel: Configurar Contador */}
+                <div className={styles.cmsListPane}>
+                  <div className={styles.panel}>
+                    <h2 className={styles.panelTitle}>Ajustes del Contador</h2>
+                    
+                    {landingConfigSuccess && <div className={`${styles.alert} ${styles.alertSuccess}`}>{landingConfigSuccess}</div>}
+                    {landingConfigError && <div className={`${styles.alert} ${styles.alertError}`}>{landingConfigError}</div>}
+
+                    {!canEdit && (
+                      <p className={styles.formHint} style={{ color: "var(--camel)" }}>
+                        * Modo lectura. Solo administradores o editores pueden editar la configuración.
+                      </p>
+                    )}
+
+                    <form onSubmit={handleSaveLandingConfig} style={{ marginTop: "1rem" }}>
                       <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Descripción breve</label>
-                        <textarea
+                        <label className={styles.formLabel}>Título / Nombre del Evento</label>
+                        <input
+                          type="text"
                           required
-                          disabled={user.role !== "admin"}
-                          placeholder="Sinopsis o detalles de la obra..."
-                          className={styles.formTextarea}
-                          value={showDesc}
-                          onChange={(e) => setShowDesc(e.target.value)}
+                          disabled={!canEdit}
+                          placeholder="Próximo Estreno"
+                          className={styles.formInput}
+                          value={landingConfigTitle}
+                          onChange={(e) => setLandingConfigTitle(e.target.value)}
                         />
                       </div>
 
-                      {user.role === "admin" && (
-                        <button type="submit" disabled={showFormLoading} className={styles.submitBtn}>
-                          {showFormLoading ? "Guardando..." : "Guardar Espectáculo"}
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Fecha y Hora de Finalización</label>
+                        <input
+                          type="datetime-local"
+                          required
+                          disabled={!canEdit}
+                          className={styles.formInput}
+                          value={landingConfigDate}
+                          onChange={(e) => setLandingConfigDate(e.target.value)}
+                        />
+                      </div>
+
+                      {canEdit && (
+                        <button type="submit" disabled={landingConfigLoading} className={styles.submitBtn}>
+                          {landingConfigLoading ? "Guardando..." : "Guardar Contador"}
                         </button>
                       )}
                     </form>
                   </div>
-                )}
+                </div>
 
-                {showFormMode === "closed" && (
-                  <div className={styles.emptyState} style={{ background: "var(--glass-bg)", borderRadius: "12px" }}>
-                    <div className={styles.emptyIcon}>🎬</div>
-                    <p>Selecciona una obra de la lista para verla o editarla.</p>
+                {/* Right panel: Gestión de Frases */}
+                <div className={styles.cmsFormPane}>
+                  <div className={styles.panel} style={{ marginBottom: "1.5rem" }}>
+                    <h2 className={styles.panelTitle}>{editingQuote ? "Editar Frase" : "Agregar Nueva Frase"}</h2>
+
+                    {quoteFormSuccess && <div className={`${styles.alert} ${styles.alertSuccess}`}>{quoteFormSuccess}</div>}
+                    {quoteFormError && <div className={`${styles.alert} ${styles.alertError}`}>{quoteFormError}</div>}
+
+                    {!canEdit && (
+                      <p className={styles.formHint} style={{ color: "var(--camel)" }}>
+                        * Modo lectura. Solo administradores o editores pueden agregar o editar frases.
+                      </p>
+                    )}
+
+                    <form onSubmit={handleAddQuote} style={{ marginTop: "1rem" }}>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Frase / Cita</label>
+                        <textarea
+                          required
+                          disabled={!canEdit}
+                          placeholder="La música es el arte más directo, entra por el oído y va al corazón."
+                          className={styles.formTextarea}
+                          style={{ minHeight: "80px" }}
+                          value={newQuoteText}
+                          onChange={(e) => setNewQuoteText(e.target.value)}
+                        />
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Autor</label>
+                        <input
+                          type="text"
+                          required
+                          disabled={!canEdit}
+                          placeholder="Astor Piazzolla"
+                          className={styles.formInput}
+                          value={newQuoteAuthor}
+                          onChange={(e) => setNewQuoteAuthor(e.target.value)}
+                        />
+                      </div>
+
+                      <div className={styles.formGroup} style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexDirection: "row" }}>
+                        <input
+                          type="checkbox"
+                          id="newQuoteEnabled"
+                          disabled={!canEdit}
+                          checked={newQuoteEnabled}
+                          onChange={(e) => setNewQuoteEnabled(e.target.checked)}
+                          style={{ width: "auto", cursor: "pointer" }}
+                        />
+                        <label htmlFor="newQuoteEnabled" className={styles.formLabel} style={{ marginBottom: 0, cursor: "pointer" }}>
+                          Habilitar frase inmediatamente
+                        </label>
+                      </div>
+
+                      {canEdit && (
+                        <div style={{ display: "flex", gap: "0.5rem" }}>
+                          <button type="submit" disabled={quoteFormLoading} className={styles.submitBtn} style={{ flex: 1 }}>
+                            {quoteFormLoading ? "Guardando..." : (editingQuote ? "Guardar Cambios" : "Agregar Frase")}
+                          </button>
+                          {editingQuote && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingQuote(null);
+                                setNewQuoteText("");
+                                setNewQuoteAuthor("");
+                                setNewQuoteEnabled(true);
+                              }}
+                              className={styles.mockBtn}
+                              style={{ width: "auto" }}
+                            >
+                              Cancelar
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </form>
                   </div>
-                )}
+
+                  <div className={styles.panel}>
+                    <h2 className={styles.panelTitle}>Frases y Autores</h2>
+
+                    {quotesLoading ? (
+                      <div className={styles.emptyState}>
+                        <div className={styles.emptyIcon}>⏳</div>
+                        <p>Cargando frases...</p>
+                      </div>
+                    ) : quotesList.length === 0 ? (
+                      <div className={styles.emptyState}>
+                        <p>No hay frases registradas.</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                        {quotesList.map((quote) => (
+                          <div
+                            key={quote.id}
+                            style={{
+                              padding: "1rem",
+                              background: "rgba(255, 255, 255, 0.02)",
+                              border: "1px solid rgba(255, 255, 255, 0.05)",
+                              borderRadius: "8px",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              gap: "1rem"
+                            }}
+                          >
+                            <div style={{ flex: 1 }}>
+                              <p style={{ fontStyle: "italic", fontSize: "0.95rem", marginBottom: "0.4rem" }}>
+                                “{quote.text}”
+                              </p>
+                              <strong style={{ fontSize: "0.8rem", color: "var(--camel)" }}>
+                                — {quote.author}
+                              </strong>
+                            </div>
+
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.5rem" }}>
+                              <button
+                                onClick={() => handleToggleQuote(quote.id, quote.enabled)}
+                                disabled={!canEdit}
+                                className={`${styles.badge} ${quote.enabled ? styles.badgeSent : styles.badgeReceived}`}
+                                style={{ border: "none", cursor: canEdit ? "pointer" : "default" }}
+                              >
+                                {quote.enabled ? "Habilitada" : "Deshabilitada"}
+                              </button>
+                              
+                              {canEdit && (
+                                <div style={{ display: "flex", gap: "0.25rem" }}>
+                                  <button
+                                    onClick={() => {
+                                      setEditingQuote(quote);
+                                      setNewQuoteText(quote.text);
+                                      setNewQuoteAuthor(quote.author);
+                                      setNewQuoteEnabled(quote.enabled);
+                                    }}
+                                    className={styles.refreshBtn}
+                                    style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", width: "auto", display: "inline-flex", alignItems: "center" }}
+                                  >
+                                    Editar
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteQuote(quote.id)}
+                                    className={styles.deleteBtn}
+                                    style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}
+                                  >
+                                    Eliminar
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
               </div>
-            </div>
+            )}
           </div>
         )}
       </main>
