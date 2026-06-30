@@ -18,7 +18,6 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   metadataBase: new URL("https://operaprimaproducciones.com"),
   title: "Ópera Prima | Compañía de Ópera y Música Clásica",
-  description: "Descubre la excelencia lírica con Ópera Prima. Cartelera de temporadas históricas, selección interactiva de entradas en boletería, academia de altos estudios escénicos y streaming premium de música clásica.",
   keywords: "opera, musica clasica, teatro colon, la scala de milan, opera prima, teatro, lirica, ballet, orquesta filarmonica, carmen, la traviata",
   authors: [{ name: "Ópera Prima Compañía" }],
   icons: {
@@ -26,7 +25,6 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Ópera Prima | Compañía de Ópera y Música Clásica",
-    description: "Descubre la excelencia lírica con Ópera Prima. Cartelera de temporadas históricas, selección interactiva de entradas en boletería, academia de altos estudios escénicos y streaming premium de música clásica.",
     url: "https://operaprimaproducciones.com",
     siteName: "Ópera Prima",
     images: [
@@ -43,7 +41,6 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Ópera Prima | Compañía de Ópera y Música Clásica",
-    description: "Descubre la excelencia lírica con Ópera Prima. Cartelera de temporadas históricas, selección interactiva de entradas en boletería, academia de altos estudios escénicos y streaming premium de música clásica.",
     images: ["/images/isotype_top.png"],
   },
 };
